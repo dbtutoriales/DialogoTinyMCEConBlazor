@@ -1,0 +1,18 @@
+﻿@inject IJSRuntime _jsruntime
+
+<textarea id="editor"></textarea>
+
+@code {
+    [Parameter] public ParametrosEditor Parametros { get; set; }
+
+    private Lazy<Task<IJSObjectReference>> moduleTask;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await _jsruntime.InvokeVoidAsync("import", "./_content/EditorPersonalizadoComponente/js/tinymce/tinymce.min.js");
+        moduleTask = new(() => _jsruntime.InvokeAsync<IJSObjectReference>("import", "./_content/EditorPersonalizadoComponente/js/editorDeTexto.js").AsTask());
+
+        var module = await moduleTask.Value;
+        await module.InvokeVoidAsync("initEditor", Parametros);
+    }
+}
